@@ -1,2 +1,2 @@
 bool emergency
-string messages
+string message
