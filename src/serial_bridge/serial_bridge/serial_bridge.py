@@ -5,7 +5,8 @@ import random
 import serial
 import time
 
-#port=
+#arduino info
+port=None
 Baud_rate=9600
 
 
@@ -14,8 +15,8 @@ class SerialBridge(Node):
         super().__init__('serial_bridge')
 
         #connecting to arduino
-        #self.arduino=serial.Serial('/dev/ttyACM0',Baud_rate,timeout=1)
-        #time.sleep(2)
+        self.arduino=serial.Serial('/dev/ttyACM0',Baud_rate,timeout=1)
+        time.sleep(0.2)
         self.get_logger().info("Connected successfully to arduino")
 
 
@@ -37,24 +38,20 @@ class SerialBridge(Node):
     def sensor_data(self):
         
         #reading from arduino
-        #data=self.arduino.readline().decode().strip()
-        #light,temperature,humidity,soil_moisture=data.split('\n')
+        try:
+            data=self.arduino.readline().decode().strip()
+            light,temperature,humidity,soil_moisture=data.split(',')
+        except:
+            self.get_logger().info("error recieved from arduino")
 
 
-            #for testing
-            temperature=random.uniform(20.0,55.0)
-            humidity=random.uniform(40.0,80.0)
-            light=random.uniform(10.0,100.0)
-            soil_moisture=random.uniform(10.0,100.0)
-
-
-            #publishing sensor data  'add float'
-            msg=GreenhouseSensors()
-            msg.temperature=temperature
-            msg.humidity=humidity
-            msg.light=light     
-            msg.soil_moisture=soil_moisture
-            self.publisher.publish(msg)
+        #publishing sensor data  'add float'
+        msg=GreenhouseSensors()
+        msg.temperature=float(temperature)
+        msg.humidity=float(humidity)
+        msg.light=float(light)     
+        msg.soil_moisture=float(soil_moisture)
+        self.publisher.publish(msg)
 
     def safe_action(self,msg):
         #control pump
@@ -82,22 +79,12 @@ class SerialBridge(Node):
 
             
 
-        #send the command to arduino
-        #self.arduino.write(bytes([self.command]))
+        #send the whole command to arduino
+        self.arduino.write(bytes([self.command]))
 
 
 
-    
-        
-
-            
-
-
-
-
-
-
-
+ 
 
 
 def main(args=None):
