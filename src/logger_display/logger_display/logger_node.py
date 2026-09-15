@@ -96,7 +96,7 @@ class LoggerNode(Node):
     def safety_callback(self, msg):
 
         self.emergency = msg.emergency
-        self.safety_message = msg.messages
+        self.safety_message = msg.message
 
   
     # Calculate average temperature
