@@ -1,0 +1,14 @@
+{
+    "ROS2.distro": "jazzy",
+    "cmake.sourceDirectory": "/home/mariamelnahel/smart_greenhouse_ros2/src/greenhouse_interfaces",
+    "python.autoComplete.extraPaths": [
+        "/home/mariamelnahel/ros2_ws/build/my_robot_controller",
+        "/home/mariamelnahel/ros2_ws/install/my_robot_controller/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/mariamelnahel/ros2_ws/build/my_robot_controller",
+        "/home/mariamelnahel/ros2_ws/install/my_robot_controller/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ]
+}

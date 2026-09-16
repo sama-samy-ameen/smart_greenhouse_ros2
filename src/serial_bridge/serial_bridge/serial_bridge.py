@@ -5,8 +5,6 @@ import random
 import serial
 import time
 
-#arduino info
-port=None
 Baud_rate=9600
 
 
@@ -15,8 +13,8 @@ class SerialBridge(Node):
         super().__init__('serial_bridge')
 
         #connecting to arduino
-        self.arduino=serial.Serial('/dev/ttyACM0',Baud_rate,timeout=1)
-        time.sleep(0.2)
+        self.arduino=serial.Serial('/dev/ttyACM0', Baud_rate,timeout=1)
+        time.sleep(2)
         self.get_logger().info("Connected successfully to arduino")
 
 
@@ -29,27 +27,30 @@ class SerialBridge(Node):
         self.contol_subscriber=self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.safe_action,10)
 
         #subscriber of safety node
-        self.saftey_subscriber=self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.urgent_action,10)
+        self.safety_subscriber=self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.urgent_action,10)
 
         #for bitwise 'the 0 bit for water pump , bit 1 for servo , bit 2 for safety check
         self.command=0  #all commands
 
 
+
     def sensor_data(self):
         
+
         #reading from arduino
         try:
             data=self.arduino.readline().decode().strip()
             light,temperature,humidity,soil_moisture=data.split(',')
         except:
-            self.get_logger().info("error recieved from arduino")
+            self.get_logger().info('Error recieved from arduino!')
+
 
 
         #publishing sensor data  'add float'
         msg=GreenhouseSensors()
         msg.temperature=float(temperature)
         msg.humidity=float(humidity)
-        msg.light=float(light)     
+        msg.light=float(light)   
         msg.soil_moisture=float(soil_moisture)
         self.publisher.publish(msg)
 
@@ -66,6 +67,13 @@ class SerialBridge(Node):
            self.command |= (1<<1)
         else :
             self.command &= ~(1<<1)
+
+        if msg.fan:
+            self.command |=(1<<3)
+        else:
+            self.command &= ~(1<<3)
+
+
             
 
 
@@ -79,10 +87,8 @@ class SerialBridge(Node):
 
             
 
-        #send the whole command to arduino
+        #send the command to arduino
         self.arduino.write(bytes([self.command]))
-
-
 
  
 
@@ -91,7 +97,7 @@ def main(args=None):
     rclpy.init(args=args)
     node=SerialBridge()
     rclpy.spin(node)
-    rclpy.destroy_node()
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

@@ -51,7 +51,10 @@ class SafetyMonitor(Node):
         # Check for sensor warnings
         self.check_current_sensors(msg)
 
+
     def command_callback(self, msg):
+        if msg.pump==self.pump_on:
+            return
 
         # Pump changed from OFF to ON
         if msg.pump and not self.pump_on:
@@ -130,7 +133,7 @@ class SafetyMonitor(Node):
 
         # Critical: no sensor data for too long
         if sensor_elapsed > self.SENSOR_TIMEOUT:
-
+            self.get_logger().error('CRITICAL: No sensor data recieved for 5 seconds!')
             self.publish_safety(True, 'No sensor data received for 5 seconds')
             return
         

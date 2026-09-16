@@ -157,17 +157,17 @@ class LoggerNode(Node):
             safety_text = "OK"
 
         self.get_logger().info(
-            '\n'
+            '\n\n'
             '       SMART GREENHOUSE STATUS\n'
             '\n'
             f'Temperature: {self.temperature:.1f} C\n'
             f'Humidity: {self.humidity:.1f} %\n'
             f'Light: {self.light:.1f}\n'
-            f'Soil Moisture: {self.soil_moisture:.1f} %\n'
+            f'Soil Moisture: {self.soil_moisture:.1f} %\n\n'
             f'Pump Command: {pump_text}\n'
-            f'Shade Servo: {self.servo_angle:.1f} deg\n'
+            f'Shade Servo: {self.servo_angle:.1f} deg\n\n'
             f'Safety: {safety_text}\n'
-            f'Safety Message: {self.safety_message}\n'
+            f'Safety Message: {self.safety_message}\n\n'
             f'Irrigation Cycles: {self.irrigation_cycles}\n'
             f'Average Temperature: {average_temperature:.1f} C\n'
             f'Average Humidity: {average_humidity:.1f} %\n'
@@ -176,8 +176,8 @@ class LoggerNode(Node):
             '========================================'
         )
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = LoggerNode()
     rclpy.spin(node)
     node.destroy_node()
