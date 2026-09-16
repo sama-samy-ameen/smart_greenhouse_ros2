@@ -21,7 +21,7 @@ class SerialBridge(Node):
         #publisher of sensor data
         self.publisher=self.create_publisher(GreenhouseSensors,'/greenhouse/sensors',10)
         #data publish rate
-        self.timer=self.create_timer(1,self.sensor_data)
+        self.timer=self.create_timer(0.2,self.sensor_data)
 
         #subsciber of climate controller node
         self.contol_subscriber=self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.safe_action,10)
@@ -40,19 +40,21 @@ class SerialBridge(Node):
         #reading from arduino
         try:
             data=self.arduino.readline().decode().strip()
+            if not data:
+                return
             light,temperature,humidity,soil_moisture=data.split(',')
+            #publishing sensor data  'add float'
+            msg=GreenhouseSensors()
+            msg.temperature=float(temperature)
+            msg.humidity=float(humidity)
+            msg.light=float(light)   
+            msg.soil_moisture=float(soil_moisture)
+            self.publisher.publish(msg)
         except:
             self.get_logger().info('Error recieved from arduino!')
+            self.arduino.reset_input_buffer()
 
 
-
-        #publishing sensor data  'add float'
-        msg=GreenhouseSensors()
-        msg.temperature=float(temperature)
-        msg.humidity=float(humidity)
-        msg.light=float(light)   
-        msg.soil_moisture=float(soil_moisture)
-        self.publisher.publish(msg)
 
     def safe_action(self,msg):
         #control pump
@@ -72,6 +74,11 @@ class SerialBridge(Node):
             self.command |=(1<<3)
         else:
             self.command &= ~(1<<3)
+
+        self.get_logger().info(f'Sending command bitmask: {self.command}')
+
+        #send the command to arduino
+        self.arduino.write(bytes([self.command]))
 
 
             

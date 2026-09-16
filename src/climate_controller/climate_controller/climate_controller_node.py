@@ -6,11 +6,11 @@ class ClimateControl(Node):
     def __init__(self):
         super().__init__('climate_controller')
         #all these values are susceptible to change basedon the arduino sensor sensitivity later on
-        self.soil_on_threshold=40.0
-        self.soil_off_threshold=60.0
-        self.light_high_threshold=700.0
+        self.soil_on_threshold=900.0
+        self.soil_off_threshold=500.0
+        self.light_high_threshold=1015.0
         self.light_low_threshold=400.0
-        self.temperature=35.0
+        self.temperature=27.0
         self.current_pump_state= False
 
         self.sensor_subscriber=self.create_subscription(
@@ -29,9 +29,9 @@ class ClimateControl(Node):
 
     def sensor_callback(self, msg):
         command=GreenhouseCommand()
-        if msg.soil_moisture<self.soil_on_threshold:
+        if msg.soil_moisture>self.soil_on_threshold:
             self.current_pump_state=True
-        if msg.soil_moisture>self.soil_off_threshold:
+        if msg.soil_moisture<self.soil_off_threshold:
             self.current_pump_state=False
 
         command.pump=self.current_pump_state
