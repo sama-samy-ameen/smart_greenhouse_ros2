@@ -7,11 +7,12 @@ class ClimateControl(Node):
         super().__init__('climate_controller')
         #all these values are susceptible to change basedon the arduino sensor sensitivity later on
         self.soil_on_threshold=900.0
-        self.soil_off_threshold=500.0
-        self.light_high_threshold=1015.0
-        self.light_low_threshold=400.0
-        self.temperature=27.0
+        self.soil_off_threshold=400.0
+        self.light_high_threshold=800.0
+        self.light_low_threshold=40.0
+        self.temperature=23.0
         self.current_pump_state= False
+        self.current_servo_angle = 0.0
 
         self.sensor_subscriber=self.create_subscription(
             GreenhouseSensors,
@@ -47,13 +48,12 @@ class ClimateControl(Node):
         else:
             command.fan=False
 
-        if msg.light> self.light_high_threshold:
-            command.servo_angle= 120.0
-        elif msg.light< self.light_low_threshold:
-            command.servo_angle=0.0
-        else:
-            command.servo_angle=0.0
+        if msg.light>self.light_high_threshold:
+            self.current_servo_angle= 0.0
+        elif msg.light<self.light_low_threshold:
+            self.current_servo_angle=90.0
 
+        command.servo_angle = self.current_servo_angle
         self.publisher_.publish(command)
 
 def main(args=None):

@@ -20,7 +20,7 @@ class SerialBridge(Node):
         #publisher of sensor data
         self.publisher=self.create_publisher(GreenhouseSensors,'/greenhouse/sensors',10)
         #data publish rate
-        self.timer=self.create_timer(1,self.sensor_data)
+        self.timer=self.create_timer(0.1,self.sensor_data)
 
         #subsciber of climate controller node
         self.contol_subscriber=self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.safe_action,10)
@@ -38,7 +38,9 @@ class SerialBridge(Node):
 
         #reading from arduino
         try:
+            self.arduino.reset_input_buffer()
             data=self.arduino.readline().decode().strip()
+            self.get_logger().info(f'RAW DATA: {data}')
             if not data:
                 return
             light,temperature,humidity,soil_moisture=data.split(',')
@@ -76,10 +78,7 @@ class SerialBridge(Node):
         else:
             self.command &= ~(1<<3)
 
-        
-
-
-            
+        self.arduino.write(bytes([self.command]))
 
 
 

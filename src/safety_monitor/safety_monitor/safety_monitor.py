@@ -6,7 +6,7 @@ from greenhouse_interfaces.msg import GreenhouseSensors, GreenhouseCommand, Gree
 
 class SafetyMonitor(Node):
 
-    PUMP_TIMEOUT = 10.0
+    PUMP_TIMEOUT = 7.0
     SENSOR_TIMEOUT = 5.0
 
     def __init__(self):
@@ -101,7 +101,7 @@ class SafetyMonitor(Node):
     def check_current_sensors(self, msg):
 
         # High temperature
-        if msg.temperature > 35:
+        if msg.temperature > 23:
 
             self.current_safety_message = ('High temperature: fan should be open')
         # Very high humidity
@@ -113,11 +113,11 @@ class SafetyMonitor(Node):
 
             self.current_safety_message = ('Low humidity: plants may lose water quickly')
         # Very wet soil
-        elif msg.soil_moisture > 920:
+        elif msg.soil_moisture < 920:
 
             self.current_safety_message = ('Soil moisture is too high: avoid overwatering')
         # Very dry soil
-        elif msg.soil_moisture < 350:
+        elif msg.soil_moisture > 400:
 
             self.current_safety_message = ('Soil moisture is very low: irrigation may be needed')
         # Very low light
@@ -125,7 +125,7 @@ class SafetyMonitor(Node):
 
             self.current_safety_message = ('Low light: plants may need more light')
 
-        elif msg.light > 1020 :
+        elif msg.light > 1023:
             self.current_safety_message = ('High light: plants may exposed to exessive light')
             
         
