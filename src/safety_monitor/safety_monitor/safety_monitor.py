@@ -7,7 +7,7 @@ from greenhouse_interfaces.msg import GreenhouseSensors, GreenhouseCommand, Gree
 class SafetyMonitor(Node):
 
     PUMP_TIMEOUT = 7.0
-    SENSOR_TIMEOUT = 5.0
+    SENSOR_TIMEOUT = 30.0
 
     def __init__(self):
         super().__init__('safety_monitor')

@@ -9,7 +9,7 @@ class ClimateControl(Node):
         self.soil_on_threshold=900.0
         self.soil_off_threshold=400.0
         self.light_high_threshold=800.0
-        self.light_low_threshold=40.0
+        self.light_low_threshold=10.0
         self.temperature=23.0
         self.current_pump_state= False
         self.current_servo_angle = 0.0
@@ -49,9 +49,9 @@ class ClimateControl(Node):
             command.fan=False
 
         if msg.light>self.light_high_threshold:
-            self.current_servo_angle= 0.0
+            self.current_servo_angle= 90.0
         elif msg.light<self.light_low_threshold:
-            self.current_servo_angle=90.0
+            self.current_servo_angle=0.0
 
         command.servo_angle = self.current_servo_angle
         self.publisher_.publish(command)
