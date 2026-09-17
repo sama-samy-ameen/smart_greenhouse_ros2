@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from greenhouse_interfaces.msg import GreenhouseSensors, GreenhouseCommand
+from greenhouse_interfaces.msg import GreenhouseSensors, GreenhouseCommand,GreenhouseSafety
 
 class ClimateControl(Node):
     def __init__(self):
@@ -20,18 +20,24 @@ class ClimateControl(Node):
             10
         )
 
+        
         self.publisher_=self.create_publisher(
             GreenhouseCommand,
             '/greenhouse/commands',
             10
         )
+
+        
+
         self.get_logger().info("Climate controller node initialized and listening!")
+
+    
 
     def sensor_callback(self, msg):
         command=GreenhouseCommand()
         if msg.soil_moisture>self.soil_on_threshold:
             self.current_pump_state=True
-        if msg.soil_moisture<self.soil_off_threshold:
+        if msg.soil_moisture<self.soil_off_threshold :
             self.current_pump_state=False
 
         command.pump=self.current_pump_state

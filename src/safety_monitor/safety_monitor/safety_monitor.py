@@ -86,11 +86,15 @@ class SafetyMonitor(Node):
         # Humidity should be between 0% and 100%
         if msg.humidity < 0 or msg.humidity > 100:
             return False
-        # Soil moisture should be between 0% and 100%
-        if msg.soil_moisture < 0 or msg.soil_moisture > 100:
+        # Soil moisture should be between 0% and 1023
+        if msg.soil_moisture < 0 or msg.soil_moisture > 1023:
             return False
+        # temperatue should be between 0 and 80
+        if msg.temperature < 0 or msg.temperature >80:
+            return False
+        
         # Light cannot be negative
-        if msg.light < 0:
+        if msg.light < 0 :
             return False
         return True
 
@@ -99,7 +103,7 @@ class SafetyMonitor(Node):
         # High temperature
         if msg.temperature > 35:
 
-            self.current_safety_message = ('High temperature: shade should be open')
+            self.current_safety_message = ('High temperature: fan should be open')
         # Very high humidity
         elif msg.humidity > 85:
 
@@ -109,17 +113,22 @@ class SafetyMonitor(Node):
 
             self.current_safety_message = ('Low humidity: plants may lose water quickly')
         # Very wet soil
-        elif msg.soil_moisture > 80:
+        elif msg.soil_moisture > 920:
 
             self.current_safety_message = ('Soil moisture is too high: avoid overwatering')
         # Very dry soil
-        elif msg.soil_moisture < 20:
+        elif msg.soil_moisture < 350:
 
             self.current_safety_message = ('Soil moisture is very low: irrigation may be needed')
         # Very low light
         elif msg.light < 200:
 
             self.current_safety_message = ('Low light: plants may need more light')
+
+        elif msg.light > 1020 :
+            self.current_safety_message = ('High light: plants may exposed to exessive light')
+            
+        
         else:
 
             self.current_safety_message = 'Safety OK'

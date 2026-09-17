@@ -20,6 +20,7 @@ class LoggerNode(Node):
         # Variables for commands
         self.pump_state = False
         self.servo_angle = 0.0
+        self.fan_state = False
 
         # Safety information
         self.emergency = False
@@ -41,7 +42,7 @@ class LoggerNode(Node):
         self.sensor_subscription = self.create_subscription(GreenhouseSensors,'/greenhouse/sensors',self.sensor_callback,10)
         self.command_subscription = self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.command_callback,10)
         self.safety_subscription = self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.safety_callback,10)
-        self.timer = self.create_timer(2.0,self.display_status)
+        self.timer = self.create_timer(0.5,self.display_status)
         self.get_logger().info('Logger node started and waiting for messages...')
 
     
@@ -87,9 +88,12 @@ class LoggerNode(Node):
 
             self.get_logger().info('Action: Pump OFF')
 
+
+
         # Save latest command
         self.pump_state = new_pump_state
         self.servo_angle = msg.servo_angle
+        self.fan_state = msg.fan
 
        
     # Safety callback
@@ -150,6 +154,7 @@ class LoggerNode(Node):
         water_usage = self.get_estimated_water()
 
         pump_text = "ON" if self.pump_state else "OFF"
+        fan_state= "ON" if self.fan_state else "OFF"
 
         if self.emergency:
             safety_text = "EMERGENCY"
@@ -161,16 +166,17 @@ class LoggerNode(Node):
             '       SMART GREENHOUSE STATUS\n'
             '\n'
             f'Temperature: {self.temperature:.1f} C\n'
-            f'Humidity: {self.humidity:.1f} %\n'
+            f'Humidity: {self.humidity:.1f} \n'
             f'Light: {self.light:.1f}\n'
-            f'Soil Moisture: {self.soil_moisture:.1f} %\n\n'
+            f'Soil Moisture: {self.soil_moisture:.1f} \n\n'
             f'Pump Command: {pump_text}\n'
             f'Shade Servo: {self.servo_angle:.1f} deg\n\n'
+            f'Fan Command: {fan_state}\n'
             f'Safety: {safety_text}\n'
             f'Safety Message: {self.safety_message}\n\n'
             f'Irrigation Cycles: {self.irrigation_cycles}\n'
             f'Average Temperature: {average_temperature:.1f} C\n'
-            f'Average Humidity: {average_humidity:.1f} %\n'
+            f'Average Humidity: {average_humidity:.1f} \n'
             f'Pump Runtime: {self.get_current_pump_runtime():.1f} s\n'
             f'Estimated Water: {water_usage:.1f} mL\n'
             '========================================'

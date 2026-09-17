@@ -14,14 +14,13 @@ class SerialBridge(Node):
 
         #connecting to arduino
         self.arduino=serial.Serial('/dev/ttyACM0', Baud_rate,timeout=1)
-        time.sleep(2)
         self.get_logger().info("Connected successfully to arduino")
 
 
         #publisher of sensor data
         self.publisher=self.create_publisher(GreenhouseSensors,'/greenhouse/sensors',10)
         #data publish rate
-        self.timer=self.create_timer(0.2,self.sensor_data)
+        self.timer=self.create_timer(1,self.sensor_data)
 
         #subsciber of climate controller node
         self.contol_subscriber=self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.safe_action,10)
@@ -43,6 +42,8 @@ class SerialBridge(Node):
             if not data:
                 return
             light,temperature,humidity,soil_moisture=data.split(',')
+
+
             #publishing sensor data  'add float'
             msg=GreenhouseSensors()
             msg.temperature=float(temperature)
@@ -75,10 +76,7 @@ class SerialBridge(Node):
         else:
             self.command &= ~(1<<3)
 
-        self.get_logger().info(f'Sending command bitmask: {self.command}')
-
-        #send the command to arduino
-        self.arduino.write(bytes([self.command]))
+        
 
 
             
