@@ -10,7 +10,7 @@ class ClimateControl(Node):
         self.soil_off_threshold=400.0
         self.light_high_threshold=800.0
         self.light_low_threshold=10.0
-        self.temperature=23.0
+        self.temperature=26.0
         self.current_pump_state= False
         self.current_servo_angle = 0.0
 

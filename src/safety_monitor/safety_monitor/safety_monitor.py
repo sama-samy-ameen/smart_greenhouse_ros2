@@ -101,7 +101,7 @@ class SafetyMonitor(Node):
     def check_current_sensors(self, msg):
 
         # High temperature
-        if msg.temperature > 23:
+        if msg.temperature > 25:
 
             self.current_safety_message = ('High temperature: fan should be open')
         # Very high humidity
