@@ -2,7 +2,7 @@ import time
 import rclpy
 from rclpy.node import Node
 
-from greenhouse_interfaces.msg import (GreenhouseSensors,GreenhouseCommand,GreenhouseSafety)
+from greenhouse_interfaces.msg import (GreenhouseSensors,GreenhouseCommand,GreenhouseSafety,GreenhouseGUI)
 
 
 class LoggerNode(Node):
@@ -20,6 +20,7 @@ class LoggerNode(Node):
         # Variables for commands
         self.pump_state = False
         self.servo_angle = 0.0
+        self.fan_state = False
 
         # Safety information
         self.emergency = False
@@ -41,7 +42,13 @@ class LoggerNode(Node):
         self.sensor_subscription = self.create_subscription(GreenhouseSensors,'/greenhouse/sensors',self.sensor_callback,10)
         self.command_subscription = self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.command_callback,10)
         self.safety_subscription = self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.safety_callback,10)
-        self.timer = self.create_timer(2.0,self.display_status)
+
+        #publisher for gui
+        self.gui_publisher = self.create_publisher(GreenhouseGUI,'/greenhouse/gui',10)
+
+        self.timer = self.create_timer(0.5,self.display_status)
+        self.gui_timer = self.create_timer(0.5,self.publish_gui_data)
+
         self.get_logger().info('Logger node started and waiting for messages...')
 
     
@@ -87,16 +94,19 @@ class LoggerNode(Node):
 
             self.get_logger().info('Action: Pump OFF')
 
+
+
         # Save latest command
         self.pump_state = new_pump_state
         self.servo_angle = msg.servo_angle
+        self.fan_state = msg.fan
 
        
     # Safety callback
     def safety_callback(self, msg):
 
         self.emergency = msg.emergency
-        self.safety_message = msg.messages
+        self.safety_message = msg.message
 
   
     # Calculate average temperature
@@ -140,6 +150,32 @@ class LoggerNode(Node):
         water_ml = (runtime_minutes* self.pump_flow_rate_ml_per_min)
         return water_ml
 
+    def publish_gui_data(self):
+
+        msg = GreenhouseGUI()
+
+        msg.temperature = self.temperature
+        msg.humidity = self.humidity
+        msg.light = self.light
+        msg.soil_moisture = self.soil_moisture
+
+        msg.pump = self.pump_state
+        msg.fan = self.fan_state
+        msg.servo_angle = self.servo_angle
+        
+        msg.emergency = self.emergency
+        msg.safety_message = self.safety_message
+
+        msg.irrigation_cycles = self.irrigation_cycles
+        msg.average_temperature = self.get_average_temperature()
+        msg.average_humidity = self.get_average_humidity()
+        msg.pump_runtime = self.get_current_pump_runtime()
+        msg.estimated_water = self.get_estimated_water()
+
+        
+
+        self.gui_publisher.publish(msg)
+
    
     # Display current status
     def display_status(self):
@@ -150,6 +186,7 @@ class LoggerNode(Node):
         water_usage = self.get_estimated_water()
 
         pump_text = "ON" if self.pump_state else "OFF"
+        fan_state= "ON" if self.fan_state else "OFF"
 
         if self.emergency:
             safety_text = "EMERGENCY"
@@ -157,27 +194,28 @@ class LoggerNode(Node):
             safety_text = "OK"
 
         self.get_logger().info(
-            '\n'
+            '\n\n'
             '       SMART GREENHOUSE STATUS\n'
             '\n'
             f'Temperature: {self.temperature:.1f} C\n'
-            f'Humidity: {self.humidity:.1f} %\n'
+            f'Humidity: {self.humidity:.1f} \n'
             f'Light: {self.light:.1f}\n'
-            f'Soil Moisture: {self.soil_moisture:.1f} %\n'
+            f'Soil Moisture: {self.soil_moisture:.1f} \n\n'
             f'Pump Command: {pump_text}\n'
-            f'Shade Servo: {self.servo_angle:.1f} deg\n'
+            f'Shade Servo: {self.servo_angle:.1f} deg\n\n'
+            f'Fan Command: {fan_state}\n'
             f'Safety: {safety_text}\n'
-            f'Safety Message: {self.safety_message}\n'
+            f'Safety Message: {self.safety_message}\n\n'
             f'Irrigation Cycles: {self.irrigation_cycles}\n'
             f'Average Temperature: {average_temperature:.1f} C\n'
-            f'Average Humidity: {average_humidity:.1f} %\n'
+            f'Average Humidity: {average_humidity:.1f} \n'
             f'Pump Runtime: {self.get_current_pump_runtime():.1f} s\n'
             f'Estimated Water: {water_usage:.1f} mL\n'
             '========================================'
         )
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = LoggerNode()
     rclpy.spin(node)
     node.destroy_node()

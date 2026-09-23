@@ -27,6 +27,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/GreenhouseSensors.msg"
   "msg/GreenhouseCommand.msg"
   "msg/GreenhouseSafety.msg"
+  "msg/GreenhouseGUI.msg"
 )
 
 ament_package()

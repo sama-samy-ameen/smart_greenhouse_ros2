@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'logger_display'
+package_name = 'climate_controller'
 
 setup(
     name=package_name,
@@ -13,8 +13,8 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='aya',
-    maintainer_email='ayamohamedabdalrahman70@gmail.com',
+    maintainer='mariamelnahel',
+    maintainer_email='mariamelnahel@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={
@@ -23,7 +23,8 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': ['logger_display = logger_display.logger_node:main'
+        'console_scripts': [
+            'climate_controller= climate_controller.climate_controller_node:main',
         ],
     },
 )

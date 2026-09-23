@@ -1,4 +1,9 @@
+src/.vscode/browse.vc.db
+.venv/
+.vscode/
+.idea/
 build/
 install/
 log/
-
+__pycache__/
+*.pyc
