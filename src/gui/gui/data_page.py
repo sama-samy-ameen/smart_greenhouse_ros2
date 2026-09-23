@@ -2,12 +2,13 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow
 from PyQt5.QtCore import pyqtSignal
+from pathlib import Path
 
 class DataPage(QDialog):
     def __init__(self, home_page):
         super().__init__()
         #loading data.ui file
-        uic.loadUi('data.ui', self)
+        uic.loadUi(str(Path(__file__).with_name('data.ui')), self)
         #creating back to home page button
         self.home_page= home_page
         self.data_back_button.clicked.connect(self.go_back)

@@ -6,30 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>420</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color:rgb(40, 49, 43);</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>20</y>
-      <width>131</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">font: 19pt &quot;Ubuntu Sans&quot;;</string>
-    </property>
-    <property name="text">
-     <string>Statistics</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
@@ -40,7 +27,9 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>Irrigation Cycles :</string>
@@ -56,7 +45,9 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>Average Temperature :</string>
@@ -72,7 +63,9 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>Average Humidity :</string>
@@ -88,7 +81,9 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>Pump Runtime :</string>
@@ -104,36 +99,27 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>Estimated Water : </string>
     </property>
    </widget>
-   <widget class="QPushButton" name="statistics_back_button">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>450</y>
-      <width>105</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>BACK</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="irrigation_cycles_label">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>200</x>
       <y>130</y>
       <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -142,14 +128,16 @@
    <widget class="QLabel" name="avg_temperature_label">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>190</y>
+      <x>260</x>
+      <y>200</y>
       <width>121</width>
       <height>22</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -158,14 +146,16 @@
    <widget class="QLabel" name="avg_humidity_label">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>220</x>
       <y>260</y>
       <width>121</width>
       <height>22</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -174,14 +164,16 @@
    <widget class="QLabel" name="pump_runtime_label">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>190</x>
       <y>320</y>
       <width>121</width>
       <height>22</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -190,17 +182,56 @@
    <widget class="QLabel" name="estimated_water_label">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>210</x>
       <y>380</y>
       <width>111</width>
       <height>22</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 15pt &quot;Ubuntu Sans&quot;;</string>
+     <string notr="true">font: 63 oblique 11pt &quot;URW Gothic&quot;;
+font-size:14pt;
+color: rgb(181, 168, 127);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="statistics">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>421</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+font: 63 oblique 9pt &quot;URW Gothic&quot;;
+font-size:24pt;
+color: rgb(181, 168, 127);
+</string>
+    </property>
+    <property name="text">
+     <string>Statistics</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="statistics_back_button">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>430</y>
+      <width>161</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(226, 228, 222);
+font-size:28;</string>
+    </property>
+    <property name="text">
+     <string>Back to Main Window</string>
     </property>
    </widget>
   </widget>
@@ -209,8 +240,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>27</height>
+     <width>420</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>

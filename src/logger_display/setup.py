@@ -23,7 +23,7 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': ['logger_node = logger_display.logger_node:main'
+        'console_scripts': ['logger_display = logger_display.logger_node:main'
         ],
     },
 )

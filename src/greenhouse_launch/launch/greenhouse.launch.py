@@ -23,8 +23,13 @@ def generate_launch_description():
         ),
         Node(
             package='logger_display',
-            executable='logger_node',
+            executable='logger_display',
             name='logger_display',
             output='screen',
-        )
+        ),
+        Node(
+            package='gui',
+            executable='gui',
+            name='gui'
+        ),
     ])

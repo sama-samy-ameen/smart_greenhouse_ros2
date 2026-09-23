@@ -1,6 +1,7 @@
 import os
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow
+from pathlib import Path
 
 
 class StatisticsPage(QMainWindow):
@@ -9,9 +10,7 @@ class StatisticsPage(QMainWindow):
         super().__init__()
 
         # Load statistics.ui
-        ui_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)),"ui","statistics.ui")
-        uic.loadUi(ui_path, self)
+        uic.loadUi(str(Path(__file__).with_name('statistics.ui')), self)
 
         # Home page
         self.home_page = home_page

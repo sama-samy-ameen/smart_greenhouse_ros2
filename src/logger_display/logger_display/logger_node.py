@@ -2,7 +2,7 @@ import time
 import rclpy
 from rclpy.node import Node
 
-from greenhouse_interfaces.msg import (GreenhouseSensors,GreenhouseCommand,GreenhouseSafety)
+from greenhouse_interfaces.msg import (GreenhouseSensors,GreenhouseCommand,GreenhouseSafety,GreenhouseGUI)
 
 
 class LoggerNode(Node):
@@ -42,7 +42,13 @@ class LoggerNode(Node):
         self.sensor_subscription = self.create_subscription(GreenhouseSensors,'/greenhouse/sensors',self.sensor_callback,10)
         self.command_subscription = self.create_subscription(GreenhouseCommand,'/greenhouse/commands',self.command_callback,10)
         self.safety_subscription = self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.safety_callback,10)
+
+        #publisher for gui
+        self.gui_publisher = self.create_publisher(GreenhouseGUI,'/greenhouse/gui',10)
+
         self.timer = self.create_timer(0.5,self.display_status)
+        self.gui_timer = self.create_timer(0.5,self.publish_gui_data)
+
         self.get_logger().info('Logger node started and waiting for messages...')
 
     
@@ -143,6 +149,32 @@ class LoggerNode(Node):
 
         water_ml = (runtime_minutes* self.pump_flow_rate_ml_per_min)
         return water_ml
+
+    def publish_gui_data(self):
+
+        msg = GreenhouseGUI()
+
+        msg.temperature = self.temperature
+        msg.humidity = self.humidity
+        msg.light = self.light
+        msg.soil_moisture = self.soil_moisture
+
+        msg.pump = self.pump_state
+        msg.fan = self.fan_state
+        msg.servo_angle = self.servo_angle
+        
+        msg.emergency = self.emergency
+        msg.safety_message = self.safety_message
+
+        msg.irrigation_cycles = self.irrigation_cycles
+        msg.average_temperature = self.get_average_temperature()
+        msg.average_humidity = self.get_average_humidity()
+        msg.pump_runtime = self.get_current_pump_runtime()
+        msg.estimated_water = self.get_estimated_water()
+
+        
+
+        self.gui_publisher.publish(msg)
 
    
     # Display current status

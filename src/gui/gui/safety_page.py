@@ -1,13 +1,14 @@
 import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow
+from pathlib import Path
 
 
 
 class SafetyPage(QDialog):
      def __init__(self, home_page):
           super().__init__() 
-          uic.loadUi('safety.ui', self)
+          uic.loadUi(str(Path(__file__).with_name('safety.ui')), self)
           self.home_page = home_page 
           self.safety_back_button.clicked.connect(self.go_back)
 
@@ -21,7 +22,7 @@ class SafetyPage(QDialog):
          self.fan_state_label.setText( f"Fan: {fan_state}" ) 
          self.servo_state_label.setText( f"Servo: {servo_state}" )
          self.emergency_label.setText( f"Emergency: {emergency_state}" )
-         self.safety_message_label.setText( f"Safety Message: {safety_message}" )
+         self.safety_message_label.setText( f"{safety_message}" )
 
 
 # Testing
