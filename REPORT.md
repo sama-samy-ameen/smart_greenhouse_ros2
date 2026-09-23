@@ -135,7 +135,7 @@ This allows the GUI to receive the information it needs without implementing the
 
 ---
 # Main Nodes:
-# 6.1 Serial Bridge
+# 5.2 Serial Bridge
 
 The `serial_bridge` node is responsible for communication between the Arduino and ROS 2.
 
@@ -157,7 +157,7 @@ The Serial Bridge therefore acts as the connection between the physical hardware
 
 ---
 
-# 6.2. Climate Controller
+# 5.3. Climate Controller
 
 The climate controller processes the sensor information and determines the required actuator states.
 
@@ -173,7 +173,7 @@ The controller is responsible for normal greenhouse operation, while emergency h
 
 ---
 
-# 6.3 Safety Monitor
+# 5.4 Safety Monitor
 
 The `safety_monitor` node is independent from the normal climate-control logic.
 
@@ -197,7 +197,7 @@ This separation is important because safety handling should not depend entirely 
 
 ---
 
-# 6.4. Logger and Statistics
+# 5.5. Logger and Statistics
 
 The `logger_display` node collects the information produced by the greenhouse system and maintains the statistics required for monitoring.
 
@@ -229,7 +229,7 @@ This topic is used by the graphical interface.
 
 ---
 
-# 7. Graphical User Interface
+# 5.6. Graphical User Interface
 
 A PyQt5 graphical interface was developed to provide a simple way to monitor the greenhouse system.
 
@@ -243,7 +243,7 @@ The interface contains four main pages.
 
 ---
 
-## 7.1 Home Page
+##  Home Page
 
 The Home page is the main navigation page.
 
@@ -257,7 +257,7 @@ The pages are managed using a `QStackedWidget`, allowing the user to switch betw
 
 ---
 
-## 7.2 Data Page
+##  Data Page
 
 The Data page displays the current environmental measurements:
 
@@ -270,7 +270,7 @@ The values are updated when new ROS 2 messages are received.
 
 ---
 
-## 7.3 Safety Page
+##  Safety Page
 
 The Safety page displays the current system and safety state.
 
@@ -286,7 +286,7 @@ This allows the user to see both the actuator states and any safety information 
 
 ---
 
-## 7.4 Statistics Page
+##  Statistics Page
 
 The Statistics page displays the information collected by the logger.
 
@@ -302,7 +302,7 @@ The GUI only displays these values. The calculations are performed by the ROS 2 
 
 ---
 
-# 7.5. ROS 2–GUI Communication
+# 6. ROS 2–GUI Communication
 
 The GUI subscribes to:
 
@@ -316,7 +316,7 @@ The GUI uses Qt signals to safely transfer received ROS data to the PyQt5 interf
 
 ---
 
-# 8. Testing With Simulated Sensor Data
+# 7. Testing With Simulated Sensor Data
 
 Before relying completely on the physical sensors, simulated sensor values were used to test the ROS 2 communication and GUI integration.
 
@@ -350,7 +350,7 @@ It also makes it easier to verify that the GUI updates correctly whenever new se
 
 ---
 
-# 9. Demonstration Video
+# 8. Demonstration Video
 
 A demonstration video was recorded to show the operation of the integrated system.
 
@@ -362,38 +362,42 @@ The following video demonstrates the complete Smart Greenhouse system, including
 
 
 
-# 10. Challenges
+# 9. Challenges
 
 Several challenges were encountered during development.
 
-### 10.1 ROS 2 communication
+### 9.1 ROS 2 communication
 
 Connecting the different nodes through custom messages and topics required careful coordination between the publishers and subscribers.
 
-### 10.2 Sensor data integration
+### 9.2 Sensor data integration
 
 One of the main challenges was ensuring that the sensor values received from the Arduino matched the expected data format and ranges used by the ROS 2 system.
 
-### 10.3 Hardware wiring
+### 9.3 Hardware wiring
 
 Connecting the sensors, relays, servo, and Arduino through the breadboard required careful wiring and testing.
 
-### 10.4 Safety integration
+### 9.4 Safety integration
 
 Safety logic needed to remain independent from normal climate control so that abnormal conditions could be detected even when the normal control system was operating.
 
-### 10.5 GUI integration
+### 9.5 GUI integration
 
 Another challenge was connecting a Qt-based graphical application with ROS 2 while keeping the interface responsive.
 
 The final solution separates the ROS subscriber from the PyQt5 widgets and uses Qt signals to transfer the received information safely to the GUI.
 
-### 10.6 Organizing the GUI
+### 9.6 Organizing the GUI
 
 The GUI was divided into separate pages for sensor data, safety, and statistics. A `QStackedWidget` was used to manage navigation between these pages.
 
 
 ---
+
+
+
+
 
 
 This architecture allows sensing, control, safety, logging, and visualization to operate as separate but connected components.
