@@ -1,255 +1,396 @@
+# Smart Greenhouse System
 
+## ROS 2, Arduino, and PyQt5-Based Greenhouse Monitoring and Control System
 
-# Smart Greenhouse Monitoring and Control System
+---
 
-## 1. Project Overview
+## 1. Introduction
 
-The Smart Greenhouse is a ROS 2-based monitoring and control system combining Arduino hardware with ROS 2 software. Arduino handles sensor reading and actuator control, while ROS 2 handles decision-making, safety monitoring, communication, and data logging.
+The Smart Greenhouse is an automated greenhouse monitoring and control system developed using **ROS 2, Arduino, sensors, actuators, and a PyQt5 graphical user interface**.
 
-The system monitors temperature, humidity, light intensity, and soil moisture, then controls the irrigation pump, greenhouse shade, and ventilation fan accordingly.
+The main purpose of the system is to monitor environmental conditions inside a greenhouse and control the greenhouse actuators according to the detected conditions. The system monitors:
 
-## 2. Problem Statement
+* Temperature
+* Humidity
+* Light intensity
+* Soil moisture
 
-Traditional greenhouse systems often require continuous manual monitoring and control. This project provides an automated system that can:
+Based on these measurements, the system can control:
 
-- Monitor greenhouse conditions
-- Automatically control irrigation
-- Automatically control the shade based on light and temperature
-- Detect unsafe or abnormal conditions
-- Monitor and record system activity
+* Water pump
+* Cooling fan
+* Shade servo
 
-The system separates hardware interaction (Arduino) from decision-making (ROS 2).
+A separate safety system continuously monitors the greenhouse and can detect abnormal sensor readings, communication problems, and emergency conditions.
 
-## 3. Project Objectives
+The system was designed using a modular ROS 2 architecture so that each major function is handled by a separate node. This makes the system easier to test, debug, and extend.
 
-- Monitor environmental conditions in real time
-- Automatically control soil irrigation
-- Automatically control the greenhouse shade
-- Monitor system safety
-- Record and display greenhouse data
-- Establish communication between Arduino and ROS 2
-- Build a modular system that's easy to test and extend
+---
+────────────┘
 
-## 4. Team Members and Responsibilities
+# 3. Hardware Components
 
-- **Member 1** – Serial Bridge
-- **Member 2** – Climate Controller
-- **Member 3** – Safety Monitor
-- **Member 4** – Logger Display
-- **All Members** – Arduino hardware and system integration
+The Arduino is responsible for reading the physical sensors and controlling the actuators.
 
-## 5. ROS 2 Nodes
+| Component            | Arduino Pin | Function                  |
+| -------------------- | ----------: | ------------------------- |
+| DHT11                |          D2 | Temperature and humidity  |
+| Fan Relay            |          D3 | Fan control               |
+| Pump Relay           |          D4 | Water pump control        |
+| Servo                |          D9 | Shade control             |
+| Soil Moisture Sensor |          A1 | Soil moisture measurement |
+| LDR                  |          A2 | Light measurement         |
 
-### 5.1 Serial Bridge
+Serial communication between the Arduino and ROS 2 is configured at:
 
-**Function:** Handles communication between Arduino and ROS 2.
+**9600 baud**
 
-**Responsibilities:**
-- Receive sensor readings from Arduino via USB Serial
-- Parse temperature, humidity, light, and soil moisture values
-- Publish sensor data to ROS 2
-- Receive actuator commands from ROS 2
-- Send actuator commands to Arduino
-- Handle invalid serial data without crashing
+---
 
-**Publishes:** `/greenhouse/sensors`
-**Subscribes:** `/greenhouse/commands`
+# 4. Arduino Layer
 
-### 5.2 Climate Controller
+The Arduino continuously reads the greenhouse sensors and sends their measurements to the ROS 2 system through serial communication.
 
-**Function:** Makes automatic control decisions based on sensor readings.
+The sensor data contains:
 
-**Irrigation Rules:**
-- Soil moisture < 40% → Pump ON
-- Soil moisture 40–60% → Keep current pump state
-- Soil moisture > 60% → Pump OFF
-
-**Shade Rules:**
-- Light > 700 → Close shade (~120° servo angle)
-- Light < 400 → Open shade (~0° servo angle)
-- Temperature > 35°C → Open shade (heat-safety action)
-
-**Publishes:** `/greenhouse/commands`
-**Subscribes:** `/greenhouse/sensors`
-
-### 5.3 Safety Monitor
-
-**Function:** Detects abnormal and unsafe system conditions.
-
-**Responsibilities:**
-- Detect invalid sensor values
-- Detect missing sensor data
-- Detect communication problems
-- Monitor sensor timeout
-- Monitor excessive continuous pump operation
-- Publish emergency states and safety messages
-
-**Safety Conditions (examples):**
-- No sensor data for ~5 seconds
-- Pump running continuously beyond safety timeout (e.g., 10 seconds)
-- Invalid or abnormal sensor readings
-- Communication/operating abnormalities
-
-**Publishes:** `/greenhouse/safety`
-**Subscribes:** `/greenhouse/sensors`
-
-### 5.4 Logger Display
-
-**Function:** Monitors overall system status and records statistics.
-
-**Responsibilities:**
-- Display current temperature, humidity, light level, soil moisture
-- Display latest requested pump state
-- Display latest servo angle
-- Display current safety state and message
-- Count irrigation cycles
-- Calculate average temperature and humidity for the session
-- Estimate water consumption from pump runtime and calibrated flow rate
-
-**Subscribes:** `/greenhouse/sensors`, `/greenhouse/commands`, `/greenhouse/safety`
-
-## 6. ROS 2 Topics
-
-- `/greenhouse/sensors` (GreenhouseSensors) – published by Serial Bridge; subscribed by Climate Controller, Safety Monitor, Logger
-- `/greenhouse/commands` (GreenhouseCommand) – published by Climate Controller; subscribed by Serial Bridge, Logger
-- `/greenhouse/safety` (GreenhouseSafety) – published by Safety Monitor; subscribed by Logger
-
-## 7. Custom Interfaces
-
-**GreenhouseSensors.msg**
+```text
+light, temperature, humidity, soil_moisture
 ```
+
+The Arduino also receives commands from ROS 2 to control the actuators.
+
+The command information is encoded into a byte so that different bits can represent different actuator commands.
+
+The control bits are:
+
+* Bit 0 → Pump
+* Bit 1 → Shade servo
+* Bit 2 → Emergency
+* Bit 3 → Fan
+
+When an emergency condition is detected, a red led would turn on as an indication of emergency state
+
+---
+
+# 5. ROS 2 Packages and Nodes
+
+The ROS 2 system is divided into several packages.
+
+### 5.1 `greenhouse_interfaces`
+
+This package contains the custom ROS 2 message definitions used for communication between the nodes.
+
+The main messages include:
+
+### `GreenhouseSensors`
+
+```text
 float32 temperature
 float32 humidity
 float32 light
 float32 soil_moisture
 ```
 
-**GreenhouseCommand.msg**
-```
+### `GreenhouseCommand`
+
+```text
 bool pump
+bool fan
 float32 servo_angle
-```
-
-**GreenhouseSafety.msg**
-```
 bool emergency
-string messages
 ```
 
-## 8. Hardware Components
+### `GreenhouseSafety`
 
-**Arduino Uno R3** – Main microcontroller for direct sensor/actuator interaction.
-
-**DHT11** – Measures air temperature and humidity. Chosen for being simple, inexpensive, and suitable for an educational prototype.
-
-**GL5528 5mm LDR (Photoresistor)** – Measures light intensity via a voltage divider (with a 10 kΩ resistor). Used to control the shade.
-
-**Soil Moisture Sensor (resistive, analog)** – Measures soil moisture. Analog output is used since the project needs different thresholds for irrigation control. Requires calibration since raw readings don't map directly to percentage.
-
-**5V Submersible Water Pump** – ~100–300 L/h flow rate, ~1 m max head. Controlled via relay since it needs more current than an Arduino GPIO pin can safely provide.
-
-**2-Channel 5V Low-Level Relay Module** – Mechanical relay, 5V trigger, up to 10A/30V DC contact rating. Channel 1: water pump. Channel 2: ventilation fan.
-
-**SG90 Servo Motor** – Controls the greenhouse shade via PWM directly from Arduino. 0° = shade open, 120° = shade closed.
-
-**F130 5V DC Motor** – Used as a small ventilation fan (stall current ~0.8–1.2A), controlled via the second relay channel.
-
-**12V Battery** – Main power source for external loads, stepped down to 5V via the LM2596S buck converter.
-
-**LM2596S Buck Converter** – Input ~3–40V, adjustable output ~1.5–35V. Steps battery voltage down to ~5V. Chosen over a 7805 linear regulator because a switching regulator has lower power loss and less heat at higher currents.
-
-## 9. Control Logic
-
-**Irrigation Control** uses two thresholds for hysteresis:
-- Below 40% → Pump ON
-- 40–60% → Keep previous pump state
-- Above 60% → Pump OFF
-
-This avoids rapid ON/OFF switching from small sensor fluctuations.
-
-**Shade Control:**
-- Light above 700 → Close shade
-- Light below 400 → Open shade
-- Temperature above 35°C → Open shade (heat safety)
-
-## 10. Problems Faced and Solutions
-
-**10.1 Voltage Regulator Selection**
-- Problem: Need a stable 5V supply while the battery voltage is higher.
-- Solution: Used an LM2596S adjustable buck converter to step down to 5V.
-
-**10.2 7805 vs LM2596**
-A 7805 linear regulator dissipates the voltage difference as heat (Power Loss = (Vin − Vout) × Current), which becomes significant at higher currents. The LM2596S switching regulator is more suitable for powering multiple loads.
-
-**10.3 Relay Selection**
-- Problem: A 5V Solid State Relay was initially considered, but the available SSR was intended for AC loads, while the pump and fan are DC loads.
-- Solution: Used a 5V mechanical relay module that supports DC switching.
-
-**10.4 Pump Current**
-- Problem: The pump requires more current than an Arduino GPIO pin can provide.
-- Solution: Arduino only controls the relay; the pump gets its power from the external 5V supply.
-
-**10.5 Soil Moisture Calibration**
-- Problem: Raw analog readings don't directly represent an accurate moisture percentage.
-- Solution: Calibrate the sensor using dry and wet soil conditions before applying the 40%/60% thresholds.
-
-**10.6 Pump Switching**
-- Problem: Small changes in soil moisture can cause rapid pump ON/OFF switching.
-- Solution: Use two different thresholds (hysteresis) to prevent unnecessary rapid switching.
-
-## 11. Communication
-
-Arduino communicates with ROS 2 through USB Serial. Sensor data is sent in this format:
-
-```
-TEMP:27.5,HUM:61.0,LIGHT:730,SOIL:35
+```text
+bool emergency
+string message
 ```
 
-The Serial Bridge parses this data and publishes it as a `GreenhouseSensors` message. The Climate Controller processes it and publishes a `GreenhouseCommand` message. The Serial Bridge receives the command and sends it to Arduino to control the actuators. The Safety Monitor independently monitors sensor data and publishes safety information. The Logger Display subscribes to all topics to display current status and statistics.
+### `GreenhouseGUI`
 
-## 12. Example Logger Output
+This message combines the information required by the graphical interface, including:
 
+```text
+temperature
+humidity
+light
+soil_moisture
+
+pump
+fan
+servo_angle
+emergency
+
+irrigation_cycles
+average_temperature
+average_humidity
+pump_runtime
+estimated_water
+
+safety_message
 ```
-========================================
-SMART GREENHOUSE STATUS
-========================================
-Temperature: 32.0 C
-Humidity: 60.0 %
-Light: 800
-Soil Moisture: 30.0 %
-Pump Command: ON
-Shade Servo: 120 deg
-Safety: OK
-Irrigation Cycles: 3
-Estimated Water: 200 mL
-========================================
+
+This allows the GUI to receive the information it needs without implementing the greenhouse decision-making logic itself.
+
+---
+# Main Nodes:
+# 6.1 Serial Bridge
+
+The `serial_bridge` node is responsible for communication between the Arduino and ROS 2.
+
+Its main responsibilities are:
+
+1. Receiving sensor measurements from the Arduino.
+2. Converting the received serial data into ROS 2 messages.
+3. Publishing the sensor information on:
+
+```text
+/greenhouse/sensors
 ```
 
-## 13. Conclusion
+4. Receiving actuator commands from ROS 2.
+5. Converting those commands into the appropriate serial command.
+6. Sending the commands back to the Arduino.
 
-The Smart Greenhouse project demonstrates the integration of Arduino hardware with ROS 2 for environmental monitoring and automatic control. Arduino handles direct hardware interaction, while ROS 2 handles decision-making, safety monitoring, communication, and logging. The modular design allows each part of the system to be developed and tested independently while working together as one complete system.
+The Serial Bridge therefore acts as the connection between the physical hardware and the ROS 2 system.
+
+---
+
+# 6.2. Climate Controller
+
+The climate controller processes the sensor information and determines the required actuator states.
+
+For example, soil moisture is used to determine whether irrigation is required, while environmental measurements are used to control the greenhouse climate.
+
+The controller publishes actuator commands through:
+
+```text
+/greenhouse/commands
+```
+
+The controller is responsible for normal greenhouse operation, while emergency handling is kept separate in the safety system.
+
+---
+
+# 6.3 Safety Monitor
+
+The `safety_monitor` node is independent from the normal climate-control logic.
+
+Its purpose is to monitor the system for unsafe conditions, including:
+
+* Invalid sensor values
+* Missing sensor updates
+* Communication timeout
+* Emergency conditions
+* Other abnormal system states
+
+The node publishes safety information through:
+
+```text
+/greenhouse/safety
+```
+
+The safety monitor can therefore identify problems even when the normal climate controller is operating.
+
+This separation is important because safety handling should not depend entirely on the normal control logic.
+
+---
+
+# 6.4. Logger and Statistics
+
+The `logger_display` node collects the information produced by the greenhouse system and maintains the statistics required for monitoring.
+
+The recorded information includes:
+
+* Current sensor values
+* Pump state
+* Fan state
+* Servo angle
+* Emergency state
+* Irrigation cycles
+* Average temperature
+* Average humidity
+* Pump runtime
+* Estimated water consumption
+* Safety message
+
+The estimated water consumption is calculated using the configured pump flow rate of:
+
+**100 mL/min**
+
+The logger publishes the combined GUI information through:
+
+```text
+/greenhouse/gui
+```
+
+This topic is used by the graphical interface.
+
+---
+
+# 7. Graphical User Interface
+
+A PyQt5 graphical interface was developed to provide a simple way to monitor the greenhouse system.
+
+The GUI does not perform the greenhouse control calculations itself.
+
+Instead, it receives already-processed information from ROS 2 and displays it to the user.
+
+This keeps the GUI separate from the system's control and safety logic.
+
+The interface contains four main pages.
+
+---
+
+## 7.1 Home Page
+
+The Home page is the main navigation page.
+
+It provides access to:
+
+* Data
+* Safety
+* Statistics
+
+The pages are managed using a `QStackedWidget`, allowing the user to switch between them without opening multiple independent windows.
+
+---
+
+## 7.2 Data Page
+
+The Data page displays the current environmental measurements:
+
+* Temperature
+* Humidity
+* Light
+* Soil moisture
+
+The values are updated when new ROS 2 messages are received.
+
+---
+
+## 7.3 Safety Page
+
+The Safety page displays the current system and safety state.
+
+It shows:
+
+* Pump state
+* Fan state
+* Servo angle
+* Emergency state
+* Safety message
+
+This allows the user to see both the actuator states and any safety information generated by the ROS 2 system.
+
+---
+
+## 7.4 Statistics Page
+
+The Statistics page displays the information collected by the logger.
+
+It includes:
+
+* Number of irrigation cycles
+* Average temperature
+* Average humidity
+* Pump runtime
+* Estimated water consumption
+
+The GUI only displays these values. The calculations are performed by the ROS 2 logging/statistics system.
+
+---
+
+# 7.5. ROS 2–GUI Communication
+
+The GUI subscribes to:
+
+```text
+/greenhouse/gui
+```
+
+The `GreenhouseGUI` message contains the sensor, actuator, safety, and statistical information needed by the interface.
+
+The GUI uses Qt signals to safely transfer received ROS data to the PyQt5 interface.
+
+---
+
+# 8. Testing With Simulated Sensor Data
+
+Before relying completely on the physical sensors, simulated sensor values were used to test the ROS 2 communication and GUI integration.
+
+The test data is generated using random values.
+
+For example:
+
+```python
+soil_moisture = random.randint(0, 1023)
+light = random.randint(0, 1023)
+temperature = random.uniform(20.0, 35.0)
+humidity = random.uniform(0.0, 100.0)
+```
+
+The generated values are placed into a `GreenhouseSensors` message:
+
+```python
+msg = GreenhouseSensors()
+
+msg.temperature = float(temperature)
+msg.humidity = float(humidity)
+msg.light = float(light)
+msg.soil_moisture = float(soil_moisture)
+
+self.publisher.publish(msg)
+```
+
+Using simulated data makes it possible to test the complete ROS 2 communication pipeline even when the physical sensors are not connected.
+
+It also makes it easier to verify that the GUI updates correctly whenever new sensor messages are received.
+
+---
+
+# 9. Demonstration Video
+
+A demonstration video was recorded to show the operation of the integrated system.
 
 
-# Challenges Faced :
-
-1- ROS 2 Communication
-
-We did not face any significant problems with the ROS 2 system itself. However, connecting the different nodes and making sure that they could communicate correctly through the appropriate topics and message types took some time during development. We had to test the communication between the nodes and verify that the correct data was being published and received. After establishing the communication structure, the ROS 2 nodes worked together successfully.
-
-2- Sensor Data Integration
-
-One of our biggest challenges was integrating the sensor data correctly with ROS 2. We had to ensure that the data collected by the Arduino was transferred correctly through the serial connection, parsed properly by the serial bridge, and assigned to the correct ROS 2 message fields.
-
-Another challenge was dealing with the different data ranges and formats produced by the sensors. Incorrect sensor values could cause the ROS 2 system to make inappropriate decisions or trigger safety warnings. Therefore, validating the incoming data was an important part of the system.
 
 
-Another major challenge was ensuring that the system could make the correct control decision at the correct time based on changing sensor readings.For instance, the soil moisture level determines when irrigation should start or stop, while temperature and light levels affect the fan and shade. We had to carefully determine appropriate thresholds and control conditions so that the system would respond correctly to changes in the greenhouse environment without unnecessary or repeated actuator switching.
+# 10. Challenges
 
-3- Safety Monitoring
+Several challenges were encountered during development.
 
-Implementing the safety system also required careful testing because it operates independently from the normal climate-control logic. We had to ensure that the safety monitor could distinguish between valid sensor readings and abnormal data and correctly report emergency conditions.
+### 10.1 ROS 2 communication
 
-Testing different sensor values was particularly important because the system needed to respond correctly to invalid readings while continuing normal operation when the data was within the expected ranges.
+Connecting the different nodes through custom messages and topics required careful coordination between the publishers and subscribers.
 
-4- Arduino
-Connecting the components correctly on the breadboard and interfacing them with the Arduino required a significant amount of time and effort. However, once the connections were understood, the implementation itself was straightforward.
+### 10.2 Sensor data integration
+
+One of the main challenges was ensuring that the sensor values received from the Arduino matched the expected data format and ranges used by the ROS 2 system.
+
+### 10.3 Hardware wiring
+
+Connecting the sensors, relays, servo, and Arduino through the breadboard required careful wiring and testing.
+
+### 10.4 Safety integration
+
+Safety logic needed to remain independent from normal climate control so that abnormal conditions could be detected even when the normal control system was operating.
+
+### 10.5 GUI integration
+
+Another challenge was connecting a Qt-based graphical application with ROS 2 while keeping the interface responsive.
+
+The final solution separates the ROS subscriber from the PyQt5 widgets and uses Qt signals to transfer the received information safely to the GUI.
+
+### 10.6 Organizing the GUI
+
+The GUI was divided into separate pages for sensor data, safety, and statistics. A `QStackedWidget` was used to manage navigation between these pages.
+
+
+---
+
+
+This architecture allows sensing, control, safety, logging, and visualization to operate as separate but connected components.
+
+---
