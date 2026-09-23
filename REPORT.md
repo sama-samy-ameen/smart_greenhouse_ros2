@@ -357,7 +357,7 @@ A demonstration video was recorded to show the operation of the integrated syste
 
 The following video demonstrates the complete Smart Greenhouse system, including launching the ROS 2 system, displaying simulated  fake-sensor data, navigating through the GUI pages, and viewing safety and statistics information.
 
-[▶️ Watch the Smart Greenhouse Demo](docs/greenhouse_demo.webm)
+[ Watch the Smart Greenhouse Demo](docs/greenhouse_demo.webm)
 
 
 
