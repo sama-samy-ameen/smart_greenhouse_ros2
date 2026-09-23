@@ -13,7 +13,7 @@ class SerialBridge(Node):
         super().__init__('serial_bridge')
 
         #connecting to arduino
-       # self.arduino=serial.Serial('/dev/ttyACM0', Baud_rate,timeout=1)
+        self.arduino=serial.Serial('/dev/ttyACM0', Baud_rate,timeout=1)
         self.get_logger().info("Connected successfully to arduino")
 
 
@@ -37,18 +37,14 @@ class SerialBridge(Node):
         
 
         #reading from arduino
-        #try:
-         #   self.arduino.reset_input_buffer()
-          #  data=self.arduino.readline().decode().strip()
-           # self.get_logger().info(f'RAW DATA: {data}')
-            #if not data:
-            #    return
-            #light,temperature,humidity,soil_moisture=data.split(',')
-            soil_moisture = random.randint(0, 1023)
-            light = random.randint(0, 1023)
-            temperature = random.uniform(20.0, 35.0)
-            humidity = random.uniform(0.0, 1000.0)
-
+        try:
+            self.arduino.reset_input_buffer()
+            data=self.arduino.readline().decode().strip()
+            self.get_logger().info(f'RAW DATA: {data}')
+            if not data:
+                return
+            light,temperature,humidity,soil_moisture=data.split(',')
+            
             #publishing sensor data  'add float'
             msg=GreenhouseSensors()
             msg.temperature=float(temperature)
@@ -56,9 +52,9 @@ class SerialBridge(Node):
             msg.light=float(light)   
             msg.soil_moisture=float(soil_moisture)
             self.publisher.publish(msg)
-        #except:
-         #   self.get_logger().info('Error recieved from arduino!')
-          #  self.arduino.reset_input_buffer()
+        except:
+            self.get_logger().info('Error recieved from arduino!')
+            self.arduino.reset_input_buffer()
 
 
 
@@ -81,7 +77,7 @@ class SerialBridge(Node):
         else:
             self.command &= ~(1<<3)
 
-        #self.arduino.write(bytes([self.command]))
+        self.arduino.write(bytes([self.command]))
 
 
 
@@ -95,7 +91,7 @@ class SerialBridge(Node):
             
 
         #send the command to arduino
-        #self.arduino.write(bytes([self.command]))
+        self.arduino.write(bytes([self.command]))
 
  
 
