@@ -354,7 +354,7 @@ It also makes it easier to verify that the GUI updates correctly whenever new se
 
 Demonstration videos were recorded to show the operation of the integrated system.
  
-     https://drive.google.com/drive/folders/1Y7e5-S_prTQoZEiDZqrb7O9IcSpAAplR
+   https://drive.google.com/drive/folders/1Y7e5-S_prTQoZEiDZqrb7O9IcSpAAplR
 
  note: the logger photo was enhanced for better quality using AI
 
