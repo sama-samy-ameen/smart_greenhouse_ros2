@@ -28,7 +28,7 @@ class SerialBridge(Node):
         #subscriber of safety node
         self.safety_subscriber=self.create_subscription(GreenhouseSafety,'/greenhouse/safety',self.urgent_action,10)
 
-        #for bitwise 'the 0 bit for water pump , bit 1 for servo , bit 2 for safety check
+        #for bitwise 'the 0 bit for water pump , bit 1 for servo , bit 2 for safety check , bit 3 for fan '
         self.command=0  #all commands
 
 
@@ -36,11 +36,12 @@ class SerialBridge(Node):
     def sensor_data(self):
         
 
-        #reading from arduino
+        #reading from arduino 'the latest possible reading'
         try:
             self.arduino.reset_input_buffer()
             data=self.arduino.readline().decode().strip()
             self.get_logger().info(f'RAW DATA: {data}')
+            # checking if data is empty , to exit this cycle and get the next sensor data
             if not data:
                 return
             light,temperature,humidity,soil_moisture=data.split(',')
@@ -64,14 +65,14 @@ class SerialBridge(Node):
             self.command |= (1<<0)
         else:
             self.command &= ~(1 << 0)
-             
 
-        #controll servo
+        #control servo
         if msg.servo_angle:  #any non zero value , which is True
            self.command |= (1<<1)
         else :
             self.command &= ~(1<<1)
 
+        #control fan 
         if msg.fan:
             self.command |=(1<<3)
         else:
