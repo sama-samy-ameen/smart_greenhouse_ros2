@@ -41,6 +41,7 @@ class SerialBridge(Node):
             self.arduino.reset_input_buffer()
             data=self.arduino.readline().decode().strip()
             self.get_logger().info(f'RAW DATA: {data}')
+            
             # checking if data is empty , to exit this cycle and get the next sensor data
             if not data:
                 return
